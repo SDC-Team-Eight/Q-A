@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server/index.js"
+    "test": "jest",
+    "start": "nodemon server/index.js",
+    "k6test": "k6 run server/script.js"
   },
   "repository": {
     "type": "git",
@@ -20,9 +21,12 @@
   "dependencies": {
     "axios": "^0.21.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
     "express": "4.17.1",
+    "jest": "^28.1.1",
     "nodemon": "^2.0.16",
     "pg": "^8.7.3",
-    "postgres": "^3.2.4"
+    "postgres": "^3.2.4",
+    "supertest": "^6.2.3"
   }
 }

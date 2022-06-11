@@ -2,13 +2,13 @@ const db = require('../db');
 // module.exports ={
 //   getAnswers: ({question_id}, {page = 1, count = 5}) => {
 //     return db.query(
-//       `SELECT answer_id,
+//       `SELECT id,
 //        answer_body,
 //         answer_date,
 //         answerer_name,
 //         answer_helpfulness,
-//         COALESCE((select json_agg(p.url) from answerPhotos p WHERE p.answer_id = a.answer_id), json_build_array()) AS answerPhotos FROM answers a WHERE a.question_id = ${question_id}
-//         AND NOT a.reported LIMIT ${count} OFFSET ${(page-1)*count}
+//         COALESCE((select json_agg(p.url) from answerPhotos p WHERE p.id = a.id), json_build_array()) AS answerPhotos FROM answers a WHERE a.question_id = ${question_id}
+//         AND NOT a.answer_reported LIMIT ${count} OFFSET ${(page-1)*count}
 //       `
 //     );
 //   },
@@ -33,17 +33,17 @@ const db = require('../db');
 //             FALSE,
 //             0
 //           )
-//     RETURNING answer_id`
+//     RETURNING id`
 //     );
 //   },
-//   answerHelpfulness: ({answer_id}) => {
+//   answerHelpfulness: ({id}) => {
 //     return db.query(
-//       `UPDATE answers SET answer_helpfulness = answer_helpfuless + 1 WHERE answer_id = ${answer_id}`
+//       `UPDATE answers SET answer_helpfulness = answer_helpfuless + 1 WHERE id = ${id}`
 //     );
 //   },
-//   answerReported: ({answer_id}) => {
+//   answerReported: ({id}) => {
 //     return db.query(
-//       `UPDATE answers SET answer_reported = TRUE WHERE answer_id = ${answer_id}`
+//       `UPDATE answers SET answer_reported = TRUE WHERE id = ${id}`
 //     );
 //   }
 // };
@@ -56,9 +56,9 @@ module.exports ={
         'count', ${count},
         'results', json_agg(
           json_build_object(
-            'answer_id', answers.answer_id,
+            'answer_id', answers.id,
             'body', answers.answer_body,
-            'date', TO_CHAR(TO_TIMESTAMP(answers.answer_date/ 1000), 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
+            'date', answers.answer_date,
             'answerer_name', answers.answerer_name,
             'helpfulness', answers.answer_helpfulness,
             'photos', (
@@ -71,7 +71,7 @@ module.exports ={
                 (SELECT
                     answerPhotos.id,
                     answerPhotos.url
-              FROM answerPhotos WHERE answerPhotos.answer_id = answers.answer_id) AS t
+              FROM answerPhotos WHERE answerPhotos.id = answers.id) AS t
             )
           )
         )
@@ -79,8 +79,7 @@ module.exports ={
     FROM answers WHERE answers.question_id = ${question_id} AND answers.answer_reported = false GROUP BY answers.question_id`
   )
     .then((data) => {
-      console.log(data)
-      callback(null, data);
+      callback(null, data.rows);
     })
     .catch((err) => {
       callback(err, null);
@@ -98,7 +97,7 @@ module.exports ={
     db.query(`INSERT INTO answers (question_id, answer_body, answer_date, answerer_name, answerer_email, answerer_reported,answer_helpfulness)
     VALUES(${question_id}, '${answerBody}', '${answerDate}', '${nameAnswer}', '${emailAnswer}', ${reportedAnswer}, ${helpfulAnswer}) RETURNING id;`)
     .then((data) => {
-      db.query(`INSERT INTO answerPhotos (answer_id, url) VALUES (${data[0].id}, '${photos}')`)
+      db.query(`INSERT INTO answerPhotos (id, url) VALUES (${data[0].id}, '${photos}')`)
         .then((data) => {
           callback(null, data);
         })
@@ -110,8 +109,8 @@ module.exports ={
       callback(err, null);
     })
   },
-  answerHelpfulness: (answer_id, callback) => {
-    db.query(`UPDATE answers SET answer_helpfulness = answer_helpfulness  + 1 WHERE answers.answer_id = ${answer_id}`)
+  answerHelpfulness: (id, callback) => {
+    db.query(`UPDATE answers SET answer_helpfulness = answer_helpfulness  + 1 WHERE answers.id = ${id}`)
     .then((data) => {
       callback(null, data);
     })
@@ -119,8 +118,8 @@ module.exports ={
       callback(err, null);
     })
   },
-  answerReported: (answer_id, callback) => {
-    db.query(`UPDATE answers SET answer_reported = TRUE WHERE answers.answer_id = ${answer_id}`)
+  answerReported: (id, callback) => {
+    db.query(`UPDATE answers SET answer_reported = TRUE WHERE answers.id = ${id}`)
     .then((data) => {
       callback(null, data);
     })

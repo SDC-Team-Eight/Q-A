@@ -2,18 +2,19 @@ const models = require('../models');
 module.exports = {
   get: (req, res) => {
     let question_id = req.params.question_id;
+    // console.log('id', question_id);
     let page = req.query.page || 1;
     let count = req.query.count || 5;
-    console.log('......', question_id)
+    // console.log('666', question_id)
     models.answers.getAnswers(question_id, page, count, (err, result) => {
-      console.log(result);
+      // console.log('result', result);
       if (err) {
         res.status(500).send('Cannot get answers');
       } else {
         if (result.length === 0) {
           res.send({});
         } else {
-          res.send(result.rows[0].json_build_object);
+          res.send(result[0].json_build_object);
         }
       }
     })
