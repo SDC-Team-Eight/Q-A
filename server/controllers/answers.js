@@ -2,12 +2,9 @@ const models = require('../models');
 module.exports = {
   get: (req, res) => {
     let question_id = req.params.question_id;
-    // console.log('id', question_id);
     let page = req.query.page || 1;
     let count = req.query.count || 5;
-    // console.log('666', question_id)
     models.answers.getAnswers(question_id, page, count, (err, result) => {
-      // console.log('result', result);
       if (err) {
         res.status(500).send('Cannot get answers');
       } else {
@@ -20,14 +17,14 @@ module.exports = {
     })
   },
   post: (req, res) => {
-    let question_id = req.params.question_id;
-    let dataBody = req.body;
-    models.answers.addAnswer(questin_id, dataBody, (err, result) => {
-      if (err) {
-        res.status(400).send('Cannot add the answer')
-      } else {
-        res.status(201).send('You added an answer!');
-      }
+    const question_id = req.params.question_id;
+    const { body, name, email, photos } = req.body;
+    models.answers.addAnswer({question_id, body, name, email, photos}, (err, result) => {
+          if (err) {
+            res.status(400).send('Cannot add the answer')
+          } else {
+            res.status(201).send('You added an answer!');
+          }
     })
   },
   helpfulness: (req, res) => {
