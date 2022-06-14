@@ -6,6 +6,7 @@ module.exports = {
     let count = req.query.count || 5;
     models.questions.getQuestions(product_id, page, count, (err, result) => {
       if (err) {
+        console.log(err);
         res.status(500).send('Cannot get questions');
       } else {
         res.status(200).send(result[0])
