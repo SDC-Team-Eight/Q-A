@@ -10,7 +10,7 @@ const {Pool} = require('pg');
 //    .then(() => console.log('Connected!'))
 //    .catch((err) => console.error(err));
 const db = new Pool({
-  host: '44.204.0.140',
+  host: '44.202.97.118',
   user: 'test_user',
   password:'testpassword',
   database: 'qa',
